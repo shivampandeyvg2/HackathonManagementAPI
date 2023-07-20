@@ -24,5 +24,7 @@ from Hackathon_API import views
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('add-hackathon/', views.hackathon_details.as_view()),
-                path('<int:pk>/add-hackathon/', views.hackathon_details.as_view()),
+                  path('<int:pk>/add-hackathon/', views.hackathon_details.as_view()),
+                  path('login/', views.login.as_view()),
+                  path('register/', views.register.as_view())
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

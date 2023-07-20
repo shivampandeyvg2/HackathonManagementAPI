@@ -25,6 +25,12 @@ SECRET_KEY = 'django-insecure-1=!f$)ia&*6qyjlsjeoiba92s&w%bcp&cooos56fp-=ongq0xy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -43,10 +49,11 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'hackathon.urls'
@@ -101,6 +108,16 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
