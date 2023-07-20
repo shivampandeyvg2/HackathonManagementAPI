@@ -6,18 +6,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Hackathon
-from .serializers import HackathonDataSerializer
+from .models import Hackathon, HackathonRegistrationsModel
+from .serializers import HackathonDataSerializer, HackathonRegistrationSerializer
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsInAllowedGroups
-from rest_framework_simplejwt.views import TokenObtainPairView
+from .permissions import IsHackathonCreator
 
 
 class hackathon_details(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        allowed_groups = ['hackathon_masters']
-        self.permission_classes = [IsAuthenticated, IsInAllowedGroups(allowed_groups)]
         serializer = HackathonDataSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -72,7 +69,7 @@ class register(APIView):
         groups = []
         if usertype == 'creator':
             groups.append('hackathon_masters')
-        if usertype=='participant':
+        if usertype == 'participant':
             groups.append('hackathon_participants')
         try:
             user = User.objects.create_user(username=username, password=password, email=email)
@@ -92,3 +89,30 @@ class register(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class hackathonRegistration(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        existing_data = HackathonRegistrationsModel.objects.filter(hackathon_id=request.data.get('hackathon_id') , registered_usr_id= request.data.get('registered_usr_id') )
+        if existing_data.exists():
+            return Response({"message": "you are already registered to hackathon"}, status=status.HTTP_208_ALREADY_REPORTED)
+        serializer = HackathonRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "you are successfully registered to hackathon"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def get(self , request , pk):
+        all_registeredhackathons = HackathonRegistrationsModel.objects.filter(registered_usr_id=pk).all()
+        all_registeredhackathon_json=HackathonRegistrationSerializer(all_registeredhackathons , many=True)
+        return Response(all_registeredhackathon_json.data, status=status.HTTP_200_OK)
+
+    def delete(self , request , user_id , hackathon_id):
+        existing_hackathon = HackathonRegistrationsModel.objects.filter(registered_usr_id=user_id , hackathon_id=hackathon_id)
+        if existing_hackathon.exists():
+           existing_hackathon.delete()
+           return Response({"message": "You are successfully unregistered from the given hackathon0"} , status=status.HTTP_200_OK)
+        else :
+            return Response({"error": "you are not registered for indicated hackathon"}, status=status.HTTP_404_NOT_FOUND)
+

@@ -1,8 +1,11 @@
 from rest_framework.permissions import BasePermission
 
-class IsInAllowedGroups(BasePermission):
+class IsHackathonCreator(BasePermission):
     def __init__(self, allowed_groups=None):
         self.allowed_groups = allowed_groups or []
 
     def has_permission(self, request, view):
-        return request.user.groups.filter(name__in=self.allowed_groups).exists()
+        if not request.user.is_authenticated:
+            return False
+        result=  request.user.groups.filter(name='hackathon_masters').exists()
+        return  result
