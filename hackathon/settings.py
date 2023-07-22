@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'hackathon.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'AIPlANET_ASSIGNMENT',
+        'NAME': 'Hackathon_management_system',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'USER': 'root',

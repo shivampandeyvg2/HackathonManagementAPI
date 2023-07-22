@@ -30,6 +30,7 @@ urlpatterns = [
                   path ('hackathon-registrations/', views.hackathonRegistration.as_view()),
                   path ('view-registered-hackathons/<int:pk>/', views.hackathonRegistration.as_view()),
                   path ('deregister-hackathon/<int:user_id>/<int:hackathon_id>', views.hackathonRegistration.as_view()),
+                  path ('list-all-hackathons-created/<int:pk>' , views.hackathon_details.as_view()),
 
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

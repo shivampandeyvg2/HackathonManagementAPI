@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.shortcuts import render
@@ -22,7 +24,7 @@ class hackathon_details(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        hackathonList = Hackathon.objects.all()
+        hackathonList = Hackathon.objects.filter(hackathon_end_date_txt__lte=timezone.now).all()
         serializer = HackathonDataSerializer(hackathonList, many=True)
         return Response(serializer.data)
 
@@ -37,6 +39,11 @@ class hackathon_details(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self , request , pk):
+        allCreatedHackathons = Hackathon.objects.filter(created_by_usr_id=pk).all()
+        serialized= HackathonDataSerializer(allCreatedHackathons , many=True)
+        return Response(serialized.data , status=status.HTTP_200_OK)
 
 
 class login(APIView):
@@ -116,3 +123,9 @@ class hackathonRegistration(APIView):
         else :
             return Response({"error": "you are not registered for indicated hackathon"}, status=status.HTTP_404_NOT_FOUND)
 
+
+class hackathonSubmission(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self , request):
+        submission_mode = request.data.get('hackathon_submission_mode')
+        accepted_mode = Hackathon.objects.filter(id = request.data.get('hackathon_id')).values('hackathon_submission_mode').get()
